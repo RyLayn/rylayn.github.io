@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Descargar el repositorio
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Ejecutar el actualizador
         run: python3 scripts/actualizar_datos.py

@@ -1,0 +1,38 @@
+# ============================================================
+#  Actualización automática semanal — Tabla de Tipos Pokémon
+#  Hecho por AC - RyLayn · https://github.com/RyLayn
+#  Cada lunes descarga el Pokédex más nuevo y, si hay cambios,
+#  publica la página actualizada para TODOS los visitantes.
+#  También se puede lanzar a mano: pestaña Actions → Run workflow
+# ============================================================
+name: Actualizar datos Pokémon
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"     # todos los lunes a las 6:00 UTC (~1 a.m. en Perú)
+  workflow_dispatch:         # botón manual en la pestaña Actions
+
+permissions:
+  contents: write
+
+jobs:
+  actualizar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el repositorio
+        uses: actions/checkout@v4
+
+      - name: Ejecutar el actualizador
+        run: python3 scripts/actualizar_datos.py
+
+      - name: Publicar si hubo cambios
+        run: |
+          git config user.name  "Robot de RyLayn"
+          git config user.email "actions@github.com"
+          git add index.html
+          if git diff --cached --quiet; then
+            echo "Sin cambios que publicar."
+          else
+            git commit -m "🔄 Datos Pokémon actualizados automáticamente"
+            git push
+          fi

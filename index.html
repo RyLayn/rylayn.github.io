@@ -158,9 +158,9 @@ header p{color:var(--tx-2);font-size:14px;max-width:56ch}
 .sprholder{position:relative;flex:0 0 84px !important;width:84px;height:84px;overflow:hidden;border-radius:12px;background:var(--panel-2);border:1px solid var(--line)}
 .iconwrap{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
 .iconwrap .icon{transform:scale(1.8);margin:0;flex:none}
-.sprbig{position:absolute;inset:0;margin:auto;width:78px;height:78px;object-fit:contain;image-rendering:pixelated;opacity:0;transform:scale(.9)}
-.sprbig.ready{opacity:1;transform:scale(1)}
-.iconwrap.bye{opacity:0;transform:scale(1.06)}
+.sprbig{position:absolute;inset:0;margin:auto;width:78px;height:78px;object-fit:contain;image-rendering:pixelated;opacity:0}
+.sprbig.ready{opacity:1}
+.iconwrap.bye{opacity:0}
 .formpills{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 12px}
 .formpills button{font:600 12px "Instrument Sans",sans-serif;color:var(--tx-2);background:var(--panel-2);border:1px solid var(--line);border-radius:999px;padding:6px 12px;cursor:pointer;min-height:34px}
 .formpills button[aria-pressed="true"]{color:var(--tx);border-color:#F95587;background:rgba(249,85,135,.12)}
@@ -180,8 +180,10 @@ header p{color:var(--tx-2);font-size:14px;max-width:56ch}
   .reco.on,.detail.on{animation:pop .28s ease}
   .reco{transition:opacity .15s ease,transform .15s ease}
   .reco.swapfast{opacity:0;transform:translateY(6px)}
-  .sprbig{transition:opacity .55s ease,transform .55s ease}
-  .iconwrap{transition:opacity .45s ease,transform .45s ease}
+  .sprbig.ready{animation:sprIn .65s ease both}
+  .iconwrap.bye{animation:icoOut .5s ease both}
+  @keyframes sprIn{0%{opacity:0;transform:scale(.86)}45%{opacity:.6}100%{opacity:1;transform:scale(1)}}
+  @keyframes icoOut{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(1.08)}}
   h1 .neon{background-size:220% 100%;animation:shine 7s ease-in-out infinite alternate}
   @keyframes shine{from{background-position:0% 0}to{background-position:100% 0}}
   .mic.listening svg{animation:micpulse 1.1s ease-in-out infinite}

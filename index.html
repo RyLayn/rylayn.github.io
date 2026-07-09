@@ -16,6 +16,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#0b0d12">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Tabla de tipos Pokémon · Todas las generaciones</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -98,6 +104,9 @@ header p{color:var(--tx-2);font-size:14px;max-width:56ch}
 .row{display:flex;align-items:baseline;gap:8px;padding:5px 0;font-size:14px}
 .row b{flex:0 0 84px;font-weight:600;font-size:12.5px}
 .row.w b{color:var(--win)} .row.l b{color:var(--lose)} .row.n b{color:var(--null)} .row.h b{color:var(--tx-3)}
+.row.l4{background:linear-gradient(90deg,rgba(248,113,113,.14),transparent 70%);border-left:3px solid var(--lose);border-radius:8px;padding:6px 8px;margin:2px 0}
+.row.l4 b{color:#ff6b6b;text-shadow:0 0 12px rgba(248,113,113,.45)}
+.row.q b{color:#67e8f9}
 .tags{display:flex;flex-wrap:wrap;gap:6px}
 .tag{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;padding:3px 9px;border-radius:999px;background:color-mix(in srgb,var(--c) 16%,var(--panel));border:1px solid color-mix(in srgb,var(--c) 45%,transparent);color:var(--tx)}
 .tag .dot{width:7px;height:7px;border-radius:50%;background:var(--c)}
@@ -202,6 +211,32 @@ header p{color:var(--tx-2);font-size:14px;max-width:56ch}
 .reco .warn{font-size:12.5px;color:#fbbf24;margin-bottom:10px}
 .sechd{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--tx-3);font-weight:600;margin:16px 0 4px;padding-top:12px;border-top:1px solid var(--line)}
 .offnote{font-size:11.5px;color:var(--tx-3);margin-top:8px}
+/* comparador */
+.cmpgrid{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:640px){.cmpgrid{grid-template-columns:1fr 1fr}}
+.pick{border:1px solid var(--line);border-radius:14px;background:var(--panel-2);padding:12px}
+.picklbl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--tx-3);font-weight:600;margin-bottom:8px}
+.pick input{width:100%;background:var(--ink);border:1px solid var(--line);border-radius:10px;color:var(--tx);font:500 15px "Instrument Sans",sans-serif;padding:11px 12px;min-height:44px}
+.pick .results{margin-top:8px}
+.picksel{display:flex;align-items:center;gap:10px;margin-top:10px}
+.picksel:empty{display:none}
+.picksel .nm{font-weight:700;font-size:15px}
+.picksel .clr{margin-left:auto;background:none;border:1px solid var(--line);color:var(--tx-3);border-radius:999px;width:28px;height:28px;cursor:pointer;font-size:13px}
+.cmpout{margin-top:14px}
+.cmpout:empty{display:none}
+.vsline{display:flex;align-items:baseline;gap:8px;padding:6px 0;font-size:14px;flex-wrap:wrap}
+.vsline b{font-size:12.5px}
+.vsmult{font-weight:700;padding:2px 10px;border-radius:999px;font-size:12.5px}
+.vm4{background:rgba(248,113,113,.18);color:#ff6b6b}.vm2{background:rgba(248,113,113,.10);color:#fca5a5}
+.vm1{background:rgba(255,255,255,.07);color:var(--tx-2)}.vmh{background:rgba(103,232,249,.10);color:#67e8f9}
+.vm0{background:rgba(138,147,163,.15);color:var(--null)}
+.verdict-badge{display:inline-flex;align-items:center;gap:8px;margin-top:10px;padding:9px 16px;border-radius:12px;font-weight:700;font-size:14.5px}
+.vb-win{background:rgba(74,222,128,.12);color:var(--win);border:1px solid rgba(74,222,128,.35)}
+.vb-lose{background:rgba(248,113,113,.12);color:var(--lose);border:1px solid rgba(248,113,113,.35)}
+.vb-tie{background:rgba(255,255,255,.06);color:var(--tx-2);border:1px solid var(--line)}
+/* compartir */
+.sharebtn{margin-left:auto;background:var(--panel-2);border:1px solid var(--line);color:var(--tx-2);border-radius:999px;min-width:38px;height:38px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;font:600 12px "Instrument Sans",sans-serif;padding:0 12px}
+.sharebtn svg{width:15px;height:15px}
 .credit{display:inline-flex;align-items:center;gap:7px;margin-top:14px;padding:9px 16px;border:1px solid var(--line);border-radius:999px;color:var(--tx);text-decoration:none;font:600 13px "Instrument Sans",sans-serif;background:var(--panel)}
 .credit:hover{border-color:#6390F0}
 .credit svg{width:15px;height:15px}
@@ -280,6 +315,26 @@ td.x1{color:var(--tx-3)}
   <p class="vmsg" id="vmsg"></p>
   <div class="results" id="results"></div>
   <div class="reco" id="reco"></div>
+</section>
+
+<section class="finder cmp" id="cmp">
+  <h2>⚔️ Comparador 1 vs 1</h2>
+  <p>Tu Pokémon contra el del rival: quién tiene la ventaja de tipos.</p>
+  <div class="cmpgrid">
+    <div class="pick" id="pickA">
+      <p class="picklbl">TU Pokémon</p>
+      <input type="search" autocomplete="off" placeholder="Busca el tuyo…" aria-label="Tu Pokémon">
+      <div class="pickres results"></div>
+      <div class="picksel"></div>
+    </div>
+    <div class="pick" id="pickB">
+      <p class="picklbl">El RIVAL</p>
+      <input type="search" autocomplete="off" placeholder="Busca al rival…" aria-label="Pokémon rival">
+      <div class="pickres results"></div>
+      <div class="picksel"></div>
+    </div>
+  </div>
+  <div class="cmpout" id="cmpOut"></div>
 </section>
 
 <details>
@@ -417,6 +472,7 @@ function renderAll(){
     }).join("")}</tr>`).join("")}</tbody>`;
   renderLens(sel && T[sel] ? sel : null);
   if(lastMon) renderReco(lastMon);
+  if(typeof cmpRender==='function') cmpRender();
 }
 function renderLens(n){
   sel = n;
@@ -533,6 +589,7 @@ function mult(atk, defT){
 }
 function renderReco(m){
   lastMon = m;
+  try{ history.replaceState(null, "", "#"+m[3]); }catch(e){}
   const dt = [m[1], m[2]].filter(Boolean);
   const missing = dt.filter(t=>!T[t]);
   const use = dt.filter(t=>T[t]);
@@ -559,12 +616,13 @@ function renderReco(m){
   }
   reco.innerHTML = `
     ${warnHtml}
-    <div class="who">${bigSprite(m)}<div><h3>${m[0]}</h3><div class="tags" style="margin-top:4px">${dt.map(t=>T[t]?tag(t):`<span class="tag" style="--c:#555"><span class="dot"></span>${t}</span>`).join("")}</div></div></div>
+    <div class="who">${bigSprite(m)}<div><h3>${m[0]}</h3><div class="tags" style="margin-top:4px">${dt.map(t=>T[t]?tag(t):`<span class="tag" style="--c:#555"><span class="dot"></span>${t}</span>`).join("")}</div></div><button class="sharebtn" onclick="sharePoke()" title="Compartir enlace de esta ficha" aria-label="Compartir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/></svg><span class="sharetxt"></span></button></div>
     ${pills}${meganote}
     <p class="verdict">${best.length ? `Úsale <b>${best.join(", ")}</b>${groups[4].length?" — le pega ×4, lo más letal posible":""}` : "No tiene debilidades en esta generación"}</p>
-    ${groups[4].length?`<div class="row l"><b>×4 letal</b>${tags(groups[4])}</div>`:""}
+    ${groups[4].length?`<div class="row l4"><b>×4 ¡LETAL!</b>${tags(groups[4])}</div>`:""}
     <div class="row l"><b>×2 eficaz</b>${tags(groups[2])}</div>
-    <div class="row h"><b>Resiste</b>${tags([...groups[0.5],...groups[0.25]])}</div>
+    <div class="row h"><b>Resiste ×½</b>${tags(groups[0.5])}</div>
+    ${groups[0.25].length?`<div class="row q"><b>Aguanta ×¼</b>${tags(groups[0.25])}</div>`:""}
     <div class="row n"><b>Inmune ×0</b>${tags(groups[0])}</div>
     ${(()=>{ const o = offense(use.length?use:dt.filter(t=>T[t]));
       return `<p class="sechd">Y cuando ÉL ataca (con sus tipos ${dt.join(" / ")})</p>
@@ -801,6 +859,86 @@ function showNote(meta, saved){
   const r=document.getElementById("rst");
   if(r) r.addEventListener("click", ev=>{ ev.preventDefault(); try{localStorage.removeItem("pt_mon");localStorage.removeItem("pt_meta");}catch(e){} location.reload(); });
 }
+/* ============ COMPARTIR ============ */
+function sharePoke(){
+  if(!lastMon) return;
+  const url = location.origin.startsWith("http")
+    ? location.origin + location.pathname + "#" + lastMon[3]
+    : location.href.split("#")[0] + "#" + lastMon[3];
+  const done = ()=>{
+    const t=document.querySelector(".sharetxt");
+    if(t){ t.textContent="¡Copiado!"; setTimeout(()=>{t.textContent="";},2200); }
+  };
+  if(navigator.share){ navigator.share({title:"Tipos de "+lastMon[0], url}).catch(()=>{}); }
+  else if(navigator.clipboard){ navigator.clipboard.writeText(url).then(done).catch(()=>{ prompt("Copia el enlace:", url); }); }
+  else prompt("Copia el enlace:", url);
+}
+
+/* ============ COMPARADOR 1 VS 1 ============ */
+const MLBL = {4:["×4 ¡letal!","vm4"],2:["×2 eficaz","vm2"],1:["×1 neutro","vm1"],0.5:["×½ poco eficaz","vmh"],0.25:["×¼ casi nada","vmh"],0:["×0 nulo","vm0"]};
+var cmpA=null, cmpB=null;
+function mkPicker(root, setter){
+  const inp=root.querySelector("input"), res=root.querySelector(".pickres"), sel=root.querySelector(".picksel");
+  inp.addEventListener("input", ()=>{
+    const v=norm(inp.value.trim());
+    if(v.length<2){ res.innerHTML=""; return; }
+    const hits=MONI.filter(([k])=>k.includes(v)).slice(0,8);
+    res.innerHTML = hits.map(([,m])=>`<button class="hit" style="--c:${tcol(m[1])};--c2:${m[2]?tcol(m[2]):'transparent'}" data-n="${m[0]}">${icon(m)}<span class="dot"></span>${m[2]?'<span class="dot2"></span>':''}${m[0]}</button>`).join("");
+  });
+  res.addEventListener("click", e=>{
+    const b=e.target.closest(".hit"); if(!b) return;
+    setter(b.dataset.n);
+    inp.value=""; res.innerHTML="";
+    paintSel(sel, b.dataset.n, setter);
+    cmpRender();
+  });
+}
+function paintSel(sel, name, setter){
+  const m=byName[name];
+  if(!m){ sel.innerHTML=""; return; }
+  sel.innerHTML = `${icon(m)}<span class="nm">${m[0]}</span><span style="font-size:12px;color:var(--tx-3)">${m[1]}${m[2]?" · "+m[2]:""}</span><button class="clr" aria-label="Quitar">✕</button>`;
+  sel.querySelector(".clr").addEventListener("click", ()=>{ setter(null); sel.innerHTML=""; cmpRender(); });
+}
+function bestHit(att, def){
+  const ats=[att[1],att[2]].filter(t=>t&&T[t]);
+  const dfs=[def[1],def[2]].filter(t=>t&&T[t]);
+  if(!ats.length||!dfs.length) return {v:1, by:[]};
+  let v=-1, by=[];
+  for(const t of ats){ const m2=mult(t,dfs); if(m2>v){v=m2;by=[t];} else if(m2===v) by.push(t); }
+  return {v, by};
+}
+function cmpRender(){
+  const out=document.getElementById("cmpOut");
+  const A=cmpA?byName[cmpA]:null, B=cmpB?byName[cmpB]:null;
+  if(!A||!B){ out.innerHTML = (A||B) ? `<p style="font-size:13px;color:var(--tx-3)">Elige al segundo Pokémon para comparar…</p>` : ""; return; }
+  const ab=bestHit(A,B), ba=bestHit(B,A);
+  const [lab1,cls1]=MLBL[ab.v]||MLBL[1], [lab2,cls2]=MLBL[ba.v]||MLBL[1];
+  let vb, vbc;
+  if(ab.v>ba.v){ vb=`⚔️ Ventaja de tipos: ${A[0]} (¡la tuya!)`; vbc="vb-win"; }
+  else if(ba.v>ab.v){ vb=`⚠️ Ventaja de tipos: ${B[0]} (el rival)`; vbc="vb-lose"; }
+  else { vb="🤝 Empate de tipos: decidirán los stats y movimientos"; vbc="vb-tie"; }
+  out.innerHTML = `
+    <div class="vsline"><b style="color:var(--win)">Tu mejor golpe</b>${tags(ab.by)}<span class="vsmult ${cls1}">${lab1}</span></div>
+    <div class="vsline"><b style="color:var(--lose)">Su mejor golpe</b>${tags(ba.by)}<span class="vsmult ${cls2}">${lab2}</span></div>
+    <div class="verdict-badge ${vbc}">${vb}</div>
+    <p class="offnote">Comparación por STAB (los tipos propios de cada uno). Los movimientos de cobertura pueden cambiar la historia.</p>`;
+}
+mkPicker(document.getElementById("pickA"), n=>{cmpA=n;});
+mkPicker(document.getElementById("pickB"), n=>{cmpB=n;});
+
+/* ============ ENLACE DIRECTO (#hash) ============ */
+function openFromHash(){
+  const h = decodeURIComponent(location.hash.slice(1));
+  if(!h) return;
+  const m = MON.find(x=>x[3]===h) || (MONI.find(([k])=>k===norm(h))||[])[1];
+  if(m){ renderReco(m); setTimeout(()=>document.getElementById("finder").scrollIntoView({block:"start"}), 350); }
+}
+
+/* ============ MODO APP: registro del trabajador offline ============ */
+if("serviceWorker" in navigator && location.protocol==="https:"){
+  addEventListener("load", ()=>{ navigator.serviceWorker.register("sw.js").catch(()=>{}); });
+}
+
 if(storageOK){
   try{
     const savedMon = JSON.parse(localStorage.getItem("pt_mon")||"null");
@@ -812,6 +950,7 @@ if(storageOK){
     }
   }catch(e){}
 }
+openFromHash();
 </script>
 </body>
 </html>

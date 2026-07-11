@@ -17,6 +17,8 @@ FUENTES_MOV = ["https://play.pokemonshowdown.com/data/moves.json",
                "https://cdn.jsdelivr.net/gh/smogon/pokemon-showdown-client@master/play.pokemonshowdown.com/data/moves.json"]
 FUENTES_PKM = ["https://raw.githubusercontent.com/PokeAPI/pokeapi/master/data/v2/csv/moves.csv",
                "https://cdn.jsdelivr.net/gh/PokeAPI/pokeapi@master/data/v2/csv/moves.csv"]
+FUENTES_LRN = ["https://play.pokemonshowdown.com/data/learnsets.json",
+               "https://cdn.jsdelivr.net/gh/smogon/pokemon-showdown-client@master/play.pokemonshowdown.com/data/learnsets.json"]
 FUENTES_PKN = ["https://raw.githubusercontent.com/PokeAPI/pokeapi/master/data/v2/csv/move_names.csv",
                "https://cdn.jsdelivr.net/gh/PokeAPI/pokeapi@master/data/v2/csv/move_names.csv"]
 FUENTE_SHEET = "https://play.pokemonshowdown.com/sprites/pokemonicons-sheet.png"
@@ -107,6 +109,35 @@ def construir_movs(mvj, moves_csv, names_csv):
     filas.sort(key=lambda x: norm(x[0]))
     return filas
 
+def construir_lrn(learnsets, movs, especies):
+    import base64
+    midx = {m[3]: i for i, m in enumerate(movs)}
+    nb = (len(movs) + 7) // 8
+    out = {}
+    for m in especies:
+        sid = m[3]
+        k = sid.replace("-", "")
+        e = learnsets.get(k) or learnsets.get(sid.split("-")[0])
+        if not e or "learnset" not in e: continue
+        b = bytearray(nb)
+        for mv in e["learnset"]:
+            i = midx.get(mv)
+            if i is not None: b[i >> 3] |= 1 << (i & 7)
+        out[k] = base64.b64encode(bytes(b)).decode()
+    return out
+
+def valido_lrn(d, movs, minimo):
+    import base64
+    if not isinstance(d, dict) or len(d) < max(1000, minimo): return False
+    nb = (len(movs) + 7) // 8
+    for k, v in d.items():
+        if not re.fullmatch(r"[a-z0-9]+", k): return False
+        try:
+            if len(base64.b64decode(v)) != nb: return False
+        except Exception:
+            return False
+    return True
+
 def parse_iconidx(ts):
     start = ts.index('BattlePokemonIconIndexes:')
     end = ts.index('BattlePokemonIconIndexesLeft')
@@ -172,12 +203,25 @@ def main():
     if nuevo_mov is not None and not valido_movs(nuevo_mov, len(actual_mov) - 5):
         print("  aviso: los movimientos no pasaron la validación; se conservan los actuales")
         nuevo_mov = None
+    nuevo_lrn = None
+    if nuevo_mov is not None:
+        try:
+            print("Descargando movimientos aprendibles por Pokemon...")
+            nuevo_lrn = construir_lrn(json.loads(bajar(FUENTES_LRN)), nuevo_mov, nuevo)
+            if not valido_lrn(nuevo_lrn, nuevo_mov, 1000):
+                raise ValueError("validacion de learnsets")
+            print("  " + str(len(nuevo_lrn)) + " Pokemon con set aprendible")
+        except Exception as e:
+            print("  aviso: learnsets no disponibles (" + str(e) + "); movimientos+learnsets se conservan JUNTOS")
+            nuevo_mov = None; nuevo_lrn = None
 
     dumps = lambda x: json.dumps(x, ensure_ascii=False, separators=(',',':'))
     nombres_viejos = {x[0] for x in actual}
     novedades = [x[0] for x in nuevo if x[0] not in nombres_viejos]
     cambio_datos = dumps(nuevo) != dumps(actual)
-    cambio_movs = nuevo_mov is not None and dumps(nuevo_mov) != dumps(actual_mov)
+    mlrn0 = re.search(r"let LRN = (\{.*?\});", html, re.S)
+    actual_lrn = json.loads(mlrn0.group(1)) if mlrn0 else {}
+    cambio_movs = nuevo_mov is not None and (dumps(nuevo_mov) != dumps(actual_mov) or dumps(nuevo_lrn) != dumps(actual_lrn))
 
     cambio_sheet = False
     try:
@@ -207,12 +251,16 @@ def main():
     if cambio_movs:
         mm = re.search(r'let MOV = (\[\[.*?\]\]);', html, re.S)
         html = html[:mm.start(1)] + dumps(nuevo_mov) + html[mm.end(1):]
+        mlrn = re.search(r"let LRN = (\{.*?\});", html, re.S)
+        html = html[:mlrn.start(1)] + dumps(nuevo_lrn) + html[mlrn.end(1):]
 
     # verificación final antes de escribir (anticorrupción)
     chequeo = re.search(r'let MON = (\[\[.*?\]\]);', html, re.S)
     assert chequeo and valido(json.loads(chequeo.group(1)), 1000), "verificación final MON falló"
     chequeo2 = re.search(r'let MOV = (\[\[.*?\]\]);', html, re.S)
     assert chequeo2 and valido_movs(json.loads(chequeo2.group(1)), 500), "verificación final MOV falló"
+    chequeo3 = re.search(r"let LRN = (\{.*?\});", html, re.S)
+    assert chequeo3 and valido_lrn(json.loads(chequeo3.group(1)), json.loads(chequeo2.group(1)), 1000), "verificacion final LRN fallo"
     assert html.count('<script>') == 2 and html.count('</script>') == 2, "estructura dañada"
     assert 'Hecho por AC - RyLayn' in html, "créditos ausentes"
 

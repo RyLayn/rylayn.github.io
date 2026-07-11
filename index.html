@@ -144,6 +144,9 @@ header p{color:var(--tx-2);font-size:14px;max-width:56ch}
 .tags{display:flex;flex-wrap:wrap;gap:6px}
 .tag{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;padding:3px 9px;border-radius:999px;background:color-mix(in srgb,var(--c) 16%,var(--panel));border:1px solid color-mix(in srgb,var(--c) 45%,transparent);color:var(--tx)}
 .tag .dot{width:7px;height:7px;border-radius:50%;background:var(--c)}
+.tg{width:15px;height:15px;border-radius:4.5px;background:var(--c);padding:2.5px;flex:none;box-sizing:border-box}
+.tg path{fill:#fff}
+.chip .tg{width:17px;height:17px}
 .none{color:var(--tx-3);font-size:13px}
 
 .sec-t{display:flex;align-items:baseline;gap:10px;margin:6px 2px 12px;flex-wrap:wrap}
@@ -519,6 +522,16 @@ try{ const t=localStorage.getItem("pt_theme"); if(t==="light") document.document
   <div class="teamsel" id="teamSel"></div>
   <div class="teamout" id="teamOut"></div>
 </section>
+
+<section class="finder" id="caja">
+  <h2>📦 Mi Caja · armador de equipo</h2>
+  <p>Registra tus Pokémon disponibles y te armo el equipo más recomendable con rol y objeto para cada uno — reglas competitivas de Champions: solo UNA Megaevolución y objetos sin repetir.</p>
+  <div class="searchbox"><input id="qbox" type="search" autocomplete="off" placeholder="Agrega Pokémon de tu caja…" aria-label="Agregar a la caja"></div>
+  <div class="results" id="boxResults"></div>
+  <div class="teamsel" id="boxSel"></div>
+  <div class="slotrow"><button class="slotbtn" id="boxBuild">✨ Recomendar equipo</button><span class="none" id="boxMsg"></span></div>
+  <div class="covout" id="boxOut"></div>
+</section>
 </div>
 
 <div class="view" id="view-extras">
@@ -623,8 +636,8 @@ const def = n => ({
   immune: NAMES.filter(a => T[a].x0.includes(n)),
 });
 const tcol = n => (T[n]||BASE[n]).c;
-const tag = n => `<span class="tag" style="--c:${tcol(n)}"><span class="dot"></span>${n}</span>`;
-const tags = arr => arr.length ? `<div class="tags">${arr.map((n,i)=>`<span class="tag" style="--c:${tcol(n)};--i:${i}"><span class="dot"></span>${n}</span>`).join("")}</div>` : `<span class="none">ninguno</span>`;
+const tag = n => `<span class="tag" style="--c:${tcol(n)}">${glyph(n)}${n}</span>`;
+const tags = arr => arr.length ? `<div class="tags">${arr.map((n,i)=>`<span class="tag" style="--c:${tcol(n)};--i:${i}">${glyph(n)}${n}</span>`).join("")}</div>` : `<span class="none">ninguno</span>`;
 
 /* ============ RENDER ============ */
 const rail = document.getElementById("rail"), grid = document.getElementById("grid"),
@@ -632,7 +645,7 @@ const rail = document.getElementById("rail"), grid = document.getElementById("gr
 let sel = null;
 function renderAll(){
   rail.innerHTML = NAMES.map((n,i) =>
-    `<button class="chip" style="--c:${T[n].c};--i:${i}" aria-pressed="false" data-t="${n}"><span class="dot"></span>${n}</button>`).join("");
+    `<button class="chip" style="--c:${T[n].c};--i:${i}" aria-pressed="false" data-t="${n}">${glyph(n)}${n}</button>`).join("");
   grid.innerHTML = NAMES.map((n,gi) => {
     const d = def(n);
     const imm = [
@@ -715,6 +728,25 @@ buildIndexes();
 const q = document.getElementById("q"), results = document.getElementById("results"), reco = document.getElementById("reco");
 const SPRB = "https://play.pokemonshowdown.com/sprites/";
 let sheetSlots = 1644;
+const TGP={"Fuego":"M12 2C9 7 6 9 6 13a6 6 0 0 0 12 0c0-2-1-3.5-2-5-.5 2-1.5 3-2.5 3C14.5 8 13 5 12 2z",
+"Agua":"M12 2C8 8 5 11 5 15a7 7 0 0 0 14 0c0-4-3-7-7-13z",
+"Planta":"M20 4C10 4 4 10 4 20c10 0 16-6 16-16z",
+"Eléctrico":"M13 2L4 14h6l-1 8 9-12h-6l1-8z",
+"Hielo":"M11 2h2v20h-2zM3.7 6.4l1-1.7L20.3 14.6l-1 1.7zM19.3 4.7l1 1.7L4.7 16.3l-1-1.7z",
+"Pelea":"M5 9h3.4v8H5zM10.3 7h3.4v10h-3.4zM15.6 9H19v8h-3.4z",
+"Veneno":"M9 4a4 4 0 1 1 0 8 4 4 0 0 1 0-8zM16 12a3.2 3.2 0 1 1 0 6.4 3.2 3.2 0 0 1 0-6.4z",
+"Tierra":"M3 19L9 8l4 7 2-3 6 7z",
+"Volador":"M21 5c-8 0-13 3-17 10 5-1 8-1 10-3-1 3-3 4-6 6 8 0 12-5 13-13z",
+"Psíquico":"M12 6C7 6 3.5 9.5 2 12c1.5 2.5 5 6 10 6s8.5-3.5 10-6c-1.5-2.5-5-6-10-6zm0 9a3 3 0 1 1 0-6 3 3 0 0 1 0 6z",
+"Insecto":"M12 8a5 5 0 0 1 5 5v2a5 5 0 0 1-10 0v-2a5 5 0 0 1 5-5zM7 4l3 3-1.5 1.2L6 6.2zM17 4l-3 3 1.5 1.2L18 6.2z",
+"Roca":"M12 3l7 6-7 12L5 9z",
+"Fantasma":"M12 3a7 7 0 0 1 7 7v10l-2.3-2-2.3 2-2.4-2-2.4 2-2.3-2L5 20V10a7 7 0 0 1 7-7z",
+"Dragón":"M7 3c1.2 6 2.4 10 5 17 2.6-7 3.8-11 5-17-2 2.2-3.4 3.2-5 3.2S9 5.2 7 3z",
+"Siniestro":"M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 1 0 10.5 10.5z",
+"Acero":"M12 3l7.8 4.5v9L12 21l-7.8-4.5v-9z",
+"Hada":"M12 2l2.2 7.8L22 12l-7.8 2.2L12 22l-2.2-7.8L2 12l7.8-2.2z",
+"Normal":"M12 5a7 7 0 1 1 0 14 7 7 0 0 1 0-14z"};
+const glyph = t => TGP[t] ? `<svg class="tg" viewBox="0 0 24 24" aria-hidden="true"><path d="${TGP[t]}"/></svg>` : `<span class="dot"></span>`;
 const icon = (m, big) => {
   let n = m[4];
   if(n >= sheetSlots && m[5]) n = m[5];
@@ -828,11 +860,7 @@ function renderReco(m){
         <span class="vsmult ${cls(r.atk)}">pega ×${r.atk===0.5?"½":r.atk===0.25?"¼":r.atk}</span>
         <span class="vsmult ${cls(r.rec)==="vm4"||cls(r.rec)==="vm2"?"vm2":"vmh"}">recibe ×${r.rec===0.5?"½":r.rec===0.25?"¼":r.rec}</span>
         ${r.spd>0?`<span class="vsmult vm4">más rápido</span>`:r.spd<0?`<span class="vsmult vm0">más lento</span>`:""}</div>`).join("")}`; })()}
-    ${(()=>{ const st=m[6], SN=["PS","Ataque","Defensa","At. Esp.","Def. Esp.","Velocidad"], bst=st.reduce((a,b)=>a+b,0);
-      return `<p class="sechd">Stats base · Pokémon Champions <span class="beta">BETA</span></p>
-      <div class="stats">${st.map((v,i)=>`<div class="strow"><span class="stlbl">${SN[i]}</span><span class="stnum">${v}</span><span class="stbar"><i style="width:${Math.min(100,v/1.8)}%" class="${v<60?'s1':v<90?'s2':v<115?'s3':'s4'}"></i></span></div>`).join("")}
-      <div class="strow bst"><span class="stlbl">TOTAL</span><span class="stnum">${bst}</span><span class="stbar"></span></div></div>
-      <p class="offnote">En Champions no existen IVs (todos van al máximo) y el reparto se hace con Puntos de Stat: estos valores base son la referencia real de cada Pokémon. Beta: sujetos a ajustes de balance del juego.</p>`; })()}
+    
     ${(()=>{ const o = offense(use.length?use:dt.filter(t=>T[t]));
       return `<p class="sechd">Y cuando ÉL ataca (con sus tipos ${dt.join(" / ")})</p>
     <div class="row w"><b>Fuerte ×2 vs</b>${tags(o.strong)}</div>
@@ -1501,6 +1529,147 @@ document.getElementById("vsClear").addEventListener("click", ()=>{ vsA.length=0;
     inp.value="";
   });
 })();
+
+
+/* ============ MI CAJA + ARMADOR (BETA) ============ */
+var box=[];
+try{ const b=JSON.parse(localStorage.getItem("pt_box")||"[]"); if(Array.isArray(b)) box=b.filter(n=>typeof n==="string").slice(0,80); }catch(e){}
+const qbox=document.getElementById("qbox"), boxRes=document.getElementById("boxResults"),
+      boxSel=document.getElementById("boxSel"), boxOut=document.getElementById("boxOut"), boxMsg=document.getElementById("boxMsg");
+function saveBox(){ try{ localStorage.setItem("pt_box", JSON.stringify(box)); }catch(e){} }
+function boxPaint(){
+  boxSel.innerHTML = box.map(n=>{const m=byName[n]; return m?`<span class="teamchip">${icon(m)}${m[0]}<button class="x" data-n="${m[0]}" aria-label="Quitar">✕</button></span>`:"";}).join("")
+    + (box.length?`<span class="none" style="align-self:center">${box.length} en la caja</span>`:"");
+}
+qbox.addEventListener("input", ()=>{
+  const v=norm(qbox.value.trim());
+  if(v.length<1||(v.length<2&&!/^[0-9]$/.test(v))){ boxRes.innerHTML=""; return; }
+  boxRes.innerHTML = searchMon(v).slice(0,8).map(([,m])=>`<button class="hit" style="--c:${tcol(m[1])};--c2:${m[2]?tcol(m[2]):'transparent'}" data-n="${m[0]}">${icon(m)}<span class="dot"></span>${m[0]}</button>`).join("");
+});
+boxRes.addEventListener("click", e=>{
+  const b=e.target.closest(".hit"); if(!b) return;
+  if(box.includes(b.dataset.n)||box.length>=80) return;
+  box.push(b.dataset.n); qbox.value=""; boxRes.innerHTML="";
+  saveBox(); boxPaint();
+});
+boxSel.addEventListener("click", e=>{
+  const x=e.target.closest(".x"); if(!x) return;
+  box=box.filter(n=>n!==x.dataset.n); saveBox(); boxPaint();
+});
+boxPaint();
+function teamScore(ms){
+  let off=0, defPen=0;
+  const stabs=[...new Set(ms.flatMap(m=>[m[1],m[2]]).filter(t=>t&&T[t]))];
+  for(const d of NAMES){
+    if(stabs.some(a=>T[a].x2.includes(d))) off++;
+    const w=ms.filter(m=>mult(d,[m[1],m[2]].filter(t=>t&&T[t]))>=2).length;
+    const r=ms.filter(m=>mult(d,[m[1],m[2]].filter(t=>t&&T[t]))<1).length;
+    defPen += Math.max(0, w-r-1);
+  }
+  const rapidos=ms.filter(m=>m[6][5]>=100).length, muyRapidos=ms.filter(m=>m[6][5]>=125).length;
+  const fisicos=ms.filter(m=>m[6][1]>=m[6][3]&&m[6][1]>=95).length;
+  const especiales=ms.filter(m=>m[6][3]>m[6][1]&&m[6][3]>=95).length;
+  const mixBonus=(fisicos>=2&&especiales>=2)?4:(fisicos>=1&&especiales>=1)?2:0;
+  const combos=ms.map(m=>[m[1],m[2]].sort().join("/"));
+  const dup=combos.length-new Set(combos).size;
+  const bst=ms.reduce((a,m)=>a+m[6].reduce((x,y)=>x+y,0),0);
+  return off*3 - defPen*4 + rapidos*2 + muyRapidos + mixBonus - dup*5 + bst/300;
+}
+function rolDe(m, esMega){
+  const st=m[6], vel=st[5], atk=st[1], spa=st[3], bulk=st[0]+st[2]+st[4];
+  if(esMega) return "As del equipo";
+  if(vel>=110 && Math.max(atk,spa)>=100) return "Velocista";
+  if(Math.max(atk,spa)>=125) return "Rompemuros";
+  if(bulk>=310) return "Tanque";
+  if(vel>=95) return "Presión";
+  return "Pívot";
+}
+function asignarItems(ms){
+  const usados=new Set(), out=new Map();
+  const dar=(m,it,por)=>{ usados.add(it); out.set(m[0],[it,por]); };
+  const libres=()=>ms.filter(m=>!out.has(m[0]));
+  const PIEDRAS={Lucario:"Lucarionita",Alakazam:"Alakazamita",Manectric:"Manectita",Altaria:"Altarianita",Audino:"Audinita",Slowbro:"Slowbronita",Sharpedo:"Sharpedonita",Camerupt:"Cameruptita",Glalie:"Glalitita",Salamence:"Salamencita",Latias:"Latiasita",Latios:"Latiosita",Lopunny:"Lopunnita",Gallade:"Galladita",Diancie:"Diancita",Steelix:"Steelixita",Sableye:"Sableynita",Metagross:"Metagrossita"};
+  for(const m of ms) if(m[0].startsWith("Mega ")){
+    const base=m[0].replace(/^Mega /,"").replace(/ [XYZ]$/,"");
+    const suf=(m[0].match(/ ([XYZ])$/)||[])[1];
+    const piedra=(PIEDRAS[base]||base+"ita")+(suf?" "+suf:"");
+    dar(m, piedra, "su Megapiedra: sin ella no megaevoluciona");
+  }
+  const frag=libres().filter(m=>m[6][0]+m[6][2]+m[6][4]<265).sort((a,b)=>b[6][5]-a[6][5])[0];
+  if(frag && !usados.has("Banda Aguante")) dar(frag,"Banda Aguante","frágil y ofensivo: garantiza sobrevivir un golpe letal");
+  const lento=libres().filter(m=>m[6][5]<80 && Math.max(m[6][1],m[6][3])>=115).sort((a,b)=>Math.max(b[6][1],b[6][3])-Math.max(a[6][1],a[6][3]))[0];
+  if(lento && !usados.has("Pañuelo Elección")) dar(lento,"Pañuelo Elección","pegador lento: el pañuelo lo vuelve revancha inmediata");
+  const tanque=libres().sort((a,b)=>(b[6][0]+b[6][2]+b[6][4])-(a[6][0]+a[6][2]+a[6][4]))[0];
+  if(tanque && (tanque[6][0]+tanque[6][2]+tanque[6][4])>=290 && !usados.has("Baya Ziuela")) dar(tanque,"Baya Ziuela","tu muro: recupera vida en pleno combate");
+  const resto=[["Baya Citrón","curación de emergencia al caer a media vida"],["Garra Rápida","posibilidad de adelantarse a rivales más veloces"],["Hierba Blanca","anula la primera bajada de stats que le impongan"],["Polvo Brillo","reduce la precisión de los ataques que recibe"],["Restos","recuperación pasiva turno a turno"]];
+  for(const m of libres()){
+    const it=resto.find(([n])=>!usados.has(n)) || ["Baya Citrón","curación de emergencia"];
+    dar(m,it[0],it[1]);
+  }
+  return out;
+}
+document.getElementById("boxBuild").addEventListener("click", ()=>{
+  const disp=box.map(n=>byName[n]).filter(Boolean);
+  if(disp.length<6){ boxOut.innerHTML=""; boxMsg.textContent="Agrega al menos 6 Pokémon a tu caja."; return; }
+  boxMsg.textContent="";
+  const megaOpts=[null];
+  for(const m of disp) if(FAM[m[0]]) for(const mg of FAM[m[0]]) megaOpts.push({base:m, mega:mg});
+  let mejor=null;
+  for(const opt of megaOpts){
+    let equipo=[], pool=disp.slice();
+    if(opt){ equipo.push(opt.mega); pool=pool.filter(x=>x[0]!==opt.base[0]); }
+    while(equipo.length<6 && pool.length){
+      let mm=null, ms2=-1e9;
+      for(const c of pool){ const sc=teamScore([...equipo,c]); if(sc>ms2){ms2=sc;mm=c;} }
+      equipo.push(mm); pool=pool.filter(x=>x[0]!==mm[0]);
+    }
+    if(equipo.length<6) continue;
+    /* refinamiento por intercambios: prueba cambiar cada miembro no-Mega por cada suplente */
+    let mejora=true, vueltas=0;
+    while(mejora && vueltas<4){
+      mejora=false; vueltas++;
+      for(let i=(opt?1:0); i<6; i++){
+        for(const c of pool){
+          const alt=equipo.slice(); alt[i]=c;
+          if(teamScore(alt)>teamScore(equipo)+0.01){
+            pool.push(equipo[i]); pool.splice(pool.indexOf(c),1);
+            equipo=alt; mejora=true;
+          }
+        }
+      }
+    }
+    const sc=teamScore(equipo);
+    if(!mejor||sc>mejor.sc) mejor={equipo,sc,mega:opt?opt.mega[0]:null};
+  }
+  if(!mejor){ boxOut.innerHTML=`<p class="offnote">No se pudo armar (¿caja muy pequeña?).</p>`; return; }
+  const ms=mejor.equipo;
+  const items=asignarItems(ms);
+  const stabs=[...new Set(ms.flatMap(m=>[m[1],m[2]]).filter(t=>t&&T[t]))];
+  const cubre=NAMES.filter(d=>stabs.some(a=>T[a].x2.includes(d)));
+  const noCubre=NAMES.filter(d=>!cubre.includes(d));
+  let peligros=0;
+  for(const d of NAMES){
+    const w=ms.filter(m=>mult(d,[m[1],m[2]].filter(t=>t&&T[t]))>=2).length;
+    const r=ms.filter(m=>mult(d,[m[1],m[2]].filter(t=>t&&T[t]))<1).length;
+    if(w>=2&&w>r) peligros++;
+  }
+  const ordenVel=[...ms].sort((a,b)=>b[6][5]-a[6][5]);
+  boxOut.innerHTML = `<p class="sechd">Equipo recomendado ${mejor.mega?`· Mega: ${mejor.mega}`:"· sin Mega disponible"}</p>`
+    + ms.map(m=>{
+        const par=items.get(m[0]);
+        return `<div class="bestline">${icon(m)}<b>${m[0]}</b><span class="vsmult vmh">${rolDe(m,m[0].startsWith("Mega "))}</span><span class="vsmult vm1">${par[0]}</span><span class="vsx">${par[1]}</span></div>`;
+      }).join("")
+    + `<div class="vsline"><b style="color:var(--win)">Cobertura ofensiva</b><span class="vsmult ${cubre.length>=15?"vm4":"vm1"}">${cubre.length}/18 tipos</span>${noCubre.length?tags(noCubre):""}</div>
+       <div class="vsline"><b style="color:${peligros?"var(--lose)":"var(--win)"}">Tipos peligrosos</b><span class="vsmult ${peligros?"vm2":"vm4"}">${peligros?peligros+" (revísalos en el analizador)":"ninguno ✓"}</span></div>
+       <div class="vsline"><b style="color:var(--tx-2)">⚡ Orden de velocidad</b><span class="vsx">${ordenVel.map(m=>m[0]+" ("+m[6][5]+")").join(" → ")}</span></div>
+       <div class="slotrow" style="margin-top:10px"><button class="slotbtn" id="boxUse">💾 Usarlo como Equipo ${["A","B","C"][slot]}</button></div>
+       <p class="offnote">Motor: cobertura ofensiva STAB, agujeros defensivos, velocidad, balance físico/especial, sin tipos duplicados y refinado por intercambios · reglas de Champions: 1 Mega y objetos únicos por equipo.</p>`;
+  document.getElementById("boxUse").addEventListener("click", ()=>{
+    teams[slot]=ms.map(m=>m[0]); saveTeam(); teamPaint();
+    boxMsg.textContent="¡Guardado en el Espacio "+["A","B","C"][slot]+"!";
+    setTimeout(()=>boxMsg.textContent="",3000);
+  });
+});
 
 window.__xtras = 1;
 

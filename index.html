@@ -77,6 +77,37 @@ header p{color:var(--tx-2);font-size:14px;max-width:56ch}
 :root[data-theme="light"] th,:root[data-theme="light"] td{border-right-color:rgba(20,28,45,.08);border-bottom-color:rgba(20,28,45,.08)}
 :root[data-theme="light"] .updlog b{color:#15803d}
 
+/* ===== MODO SEGUNDA PANTALLA / MINI / OVERLAY ===== */
+body.panel>header, body.panel .tabs, body.panel .view, body.panel footer{display:none !important}
+.pview[hidden]{display:none !important}
+.pview{position:fixed;inset:0;z-index:60;background:var(--ink);padding:10px 12px;overflow:auto;display:flex;flex-direction:column;gap:8px}
+.prow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.prow input{flex:1;min-width:150px;background:var(--panel);border:1px solid var(--line);border-radius:12px;color:var(--tx);font:600 17px "Instrument Sans",sans-serif;padding:11px 14px}
+.prow .results{width:100%}
+#pverdict:empty{display:none}
+#pverdict{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+#pverdict h3{font:700 clamp(22px,4.5vw,34px)/1.1 "Bricolage Grotesque",sans-serif;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+#pverdict .use{font:700 clamp(18px,3.6vw,28px) "Bricolage Grotesque",sans-serif;color:var(--win);margin:6px 0 4px}
+#pverdict .tag{font-size:clamp(14px,2.4vw,19px);padding:6px 12px}
+#pverdict .row b{font-size:clamp(12px,2vw,15px)}
+.pteam{display:flex;gap:7px;flex-wrap:wrap}
+.pteam .teamchip{cursor:pointer}
+.pmatrix{flex:1;min-height:0}
+.pmatrix table{width:100%;height:100%;border-collapse:separate;border-spacing:1px;table-layout:fixed;font-size:clamp(8px,1.35vw,13px)}
+.pmatrix th,.pmatrix td{padding:1px;text-align:center;border-radius:3px}
+.pmatrix thead th,.pmatrix tbody th{background:var(--panel-2);font-weight:600;white-space:nowrap;overflow:hidden;font-size:clamp(7px,1.15vw,12px)}
+.pmatrix td.x2{background:rgba(74,222,128,.20);color:var(--win);font-weight:700}
+.pmatrix td.x05{background:rgba(248,113,113,.16);color:#fca5a5;font-weight:700}
+.pmatrix td.x0{background:rgba(138,147,163,.20);color:var(--null);font-weight:700}
+:root[data-theme="light"] .pmatrix td.x05{color:#b91c1c}
+@media (max-width:560px){ .pmatrix{display:none} #pverdict .tag{font-size:17px} }
+body.overlay{background:transparent !important}
+body.overlay::before{display:none}
+body.overlay>header, body.overlay .tabs, body.overlay footer, body.overlay #view-tipos, body.overlay #view-buscar, body.overlay #view-extras{display:none !important}
+body.overlay #view-equipo section:not(#vs){display:none !important}
+body.overlay #view-equipo{display:block !important}
+body.overlay #vs{background:color-mix(in srgb,var(--ink) 82%,transparent);border-color:var(--line)}
+
 /* transición suave entre temas */
 .theming,.theming *,.theming *::before,.theming *::after{transition:background-color .5s ease,color .4s ease,border-color .5s ease,fill .4s ease,box-shadow .5s ease !important}
 /* pack visual final */
@@ -390,6 +421,9 @@ try{ const t=localStorage.getItem("pt_theme"); if(t==="light") document.document
       <button data-era="g1" aria-pressed="false">Rojo/Azul/Amarillo</button>
     </div>
     <div class="ctrlacts">
+      <button class="icon-btn" id="zoomOut" aria-label="Reducir tamaño" title="Texto más pequeño"><span style="font:700 12px sans-serif">A−</span></button>
+      <button class="icon-btn" id="zoomIn" aria-label="Aumentar tamaño" title="Texto más grande (legible de lejos)"><span style="font:700 14px sans-serif">A+</span></button>
+      <button class="icon-btn" id="panelBtn" aria-label="Modo Segunda Pantalla" title="Modo Segunda Pantalla (tablero fijo para tablet o ventana lateral)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></button>
       <button class="icon-btn" id="themeBtn" aria-label="Cambiar entre modo claro y oscuro" title="Modo claro / oscuro">
         <svg class="ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
         <svg class="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
@@ -579,6 +613,16 @@ try{ const t=localStorage.getItem("pt_theme"); if(t==="light") document.document
 </details>
 </div>
 
+<div id="view-panel" class="pview" hidden>
+  <div class="prow">
+    <button class="icon-btn" id="panelExit" aria-label="Salir del modo panel" title="Salir (Esc)">✕</button>
+    <input id="pq" type="search" autocomplete="off" placeholder="Rival… (nombre o nº dex)" aria-label="Buscar rival">
+    <div class="results" id="pres"></div>
+  </div>
+  <div id="pverdict"></div>
+  <div class="pteam" id="pteam"></div>
+  <div class="pmatrix" id="pmatrix"></div>
+</div>
 <footer>
   Nombres de tipos según la localización latinoamericana (tipo Pelea, tipo Insecto)<br>
   Datos de Pokémon y formas: Pokémon Showdown (actualizables con un toque) · Iconos offline incluidos<br><br>
@@ -680,7 +724,7 @@ function renderAll(){
     }).join("")}</tr>`).join("")}</tbody>`;
   renderLens(sel && T[sel] ? sel : null);
   if(lastMon) renderReco(lastMon);
-  if(window.__xtras){ cmpRender(); covPaint(); teamPaint(); vsPaint(); }
+  if(window.__xtras){ cmpRender(); covPaint(); teamPaint(); vsPaint(); if(document.body.classList.contains('panel')) panelMatrix(); }
 }
 function renderLens(n){
   sel = n;
@@ -1227,6 +1271,70 @@ addEventListener("keydown", e=>{
   },{passive:true});
 })();
 
+/* ============ TAMAÑO XL (zoom persistente) ============ */
+let zoomLvl = 1;
+try{ const z=parseFloat(localStorage.getItem("pt_zoom")); if(z>=0.85&&z<=1.6) zoomLvl=z; }catch(e){}
+function applyZoom(){ document.body.style.zoom = zoomLvl; try{localStorage.setItem("pt_zoom", zoomLvl);}catch(e){} }
+applyZoom();
+document.getElementById("zoomIn").addEventListener("click", ()=>{ zoomLvl=Math.min(1.6, +(zoomLvl+0.15).toFixed(2)); applyZoom(); });
+document.getElementById("zoomOut").addEventListener("click", ()=>{ zoomLvl=Math.max(0.85, +(zoomLvl-0.15).toFixed(2)); applyZoom(); });
+
+/* ============ MODO SEGUNDA PANTALLA ============ */
+const pview=document.getElementById("view-panel"), pq=document.getElementById("pq"),
+      pres=document.getElementById("pres"), pverdict=document.getElementById("pverdict"), pteamEl=document.getElementById("pteam");
+function panelMatrix(){
+  const src=document.getElementById("matrix");
+  const dst=document.getElementById("pmatrix");
+  dst.innerHTML = (src && src.rows && src.rows.length) ? src.outerHTML.replace('id="matrix"','') : "";
+}
+function panelTeam(){
+  pteamEl.innerHTML = team.map(n=>{const m=byName[n];return m?`<span class="teamchip" data-n="${m[0]}">${icon(m)}${m[0]}</span>`:"";}).join("")
+    || `<span class="none">Guarda tu equipo en ⚔️ Equipo y aparecerá aquí anclado.</span>`;
+}
+function panelVerdict(m){
+  const dt=[m[1],m[2]].filter(Boolean), use=dt.filter(t=>T[t]);
+  const gr={4:[],2:[],1:[],0.5:[],0.25:[],0:[]};
+  for(const a of NAMES) gr[mult(a,use)].push(a);
+  const best=gr[4].length?gr[4]:gr[2];
+  pverdict.innerHTML = `<h3>${icon(m,false)} ${m[0]} <span style="font-size:14px;color:var(--tx-3)">${dt.join(" / ")}</span></h3>
+    <p class="use">ÚSALE ${gr[4].length?"×4":"×2"}:</p>${tags(best)}
+    ${gr[4].length?`<div class="row l" style="margin-top:6px"><b>×2</b>${tags(gr[2])}</div>`:""}
+    <div class="row h" style="margin-top:4px"><b>Resiste</b>${tags([...gr[0.5],...gr[0.25]])}</div>
+    ${gr[0].length?`<div class="row n"><b>×0</b>${tags(gr[0])}</div>`:""}`;
+}
+pq.addEventListener("input", ()=>{
+  const v=norm(pq.value.trim());
+  if(v.length<1||(v.length<2&&!/^[0-9]$/.test(v))){ pres.innerHTML=""; return; }
+  pres.innerHTML = searchMon(v).slice(0,6).map(([,m])=>`<button class="hit" style="--c:${tcol(m[1])};--c2:${m[2]?tcol(m[2]):'transparent'}" data-n="${m[0]}">${icon(m)}<span class="dot"></span>${m[0]}</button>`).join("");
+});
+pres.addEventListener("click", e=>{
+  const b=e.target.closest(".hit"); if(!b) return;
+  panelVerdict(byName[b.dataset.n]); pq.value=""; pres.innerHTML="";
+});
+pteamEl.addEventListener("click", e=>{
+  const c=e.target.closest(".teamchip"); if(!c) return;
+  panelVerdict(byName[c.dataset.n]);
+});
+function enterPanel(){
+  document.body.classList.add("panel"); pview.hidden=false;
+  panelMatrix(); panelTeam();
+  try{ history.replaceState(null,"","#panel"); }catch(e){}
+  setTimeout(()=>pq.focus(), 150);
+}
+function exitPanel(){
+  document.body.classList.remove("panel"); pview.hidden=true;
+  try{ history.replaceState(null,"",location.pathname); }catch(e){}
+}
+document.getElementById("panelBtn").addEventListener("click", enterPanel);
+document.getElementById("panelExit").addEventListener("click", exitPanel);
+addEventListener("keydown", e=>{ if(e.key==="Escape" && document.body.classList.contains("panel") && !/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)) exitPanel(); });
+
+/* ============ MODO OVERLAY (OBS) ============ */
+function enterOverlay(){
+  document.body.classList.add("overlay");
+  switchView("equipo");
+}
+
 /* ============ COMPARTIR ============ */
 function sharePoke(){
   if(!lastMon) return;
@@ -1750,6 +1858,8 @@ detail.addEventListener("click", e=>{
 function openFromHash(){
   const h = decodeURIComponent(location.hash.slice(1));
   if(!h) return;
+  if(h==="panel"){ enterPanel(); return; }
+  if(h==="overlay"){ enterOverlay(); return; }
   if(h.startsWith("team=")){
     const sids=h.slice(5).split(",").slice(0,6);
     const ms=sids.map(sid=>MON.find(x=>x[3]===sid)).filter(Boolean);
